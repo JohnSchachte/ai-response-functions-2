@@ -1,0 +1,11 @@
+{
+  "apps": {
+    "T024F5REZ": {
+      "app_id": "A06UELQK9SL",
+      "IsDev": false,
+      "team_domain": "shift4",
+      "team_id": "T024F5REZ"
+    }
+  },
+  "default": "shift4"
+}
