@@ -22,7 +22,7 @@ curl --location 'https://aiv-api-development.shift4payments.com/gpt-rag/api/inte
 export const createAIResponseJobDef = DefineFunction({
   callback_id: "create_job",
   title: "Create AI Response Job",
-  description: "Create AI Response Job",
+  description: "NEW Create AI Response Job",
   source_file: "functions/create_job_function.ts",
   input_parameters: {
     properties: {
@@ -76,6 +76,10 @@ export const createAIResponseJobDef = DefineFunction({
         type: Schema.types.string,
         description: "JobId to poll job later",
       },
+      failure: {
+        type: Schema.types.boolean,
+        description: "Failure flag",
+      },
     },
     required: ["jobId"],
   },
@@ -113,12 +117,11 @@ export default SlackFunction(
       const jobId = data.id;
   
       // Return outputs directly within the async function after the value has been resolved
-      return { outputs: { jobId } };
+      return { outputs: { jobId, failure: false} };
     }catch(f){
       console.error(f);
       return {
-        error:
-          `An error was encountered during job creation: \`${f.message}\``,
+        outputs: { jobId: null, failure: true }
       };
   }
 });

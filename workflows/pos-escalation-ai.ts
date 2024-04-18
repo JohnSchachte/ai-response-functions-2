@@ -55,7 +55,7 @@ const inputForm = CreateAiTestWorkflow.addStep(
             {
                 name: "mid",
                 title: "mid",
-                type: Schema.types.string
+                type: Schema.types.number
             },
             {
                 name: "dba",
