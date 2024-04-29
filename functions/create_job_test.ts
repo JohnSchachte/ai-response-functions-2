@@ -29,7 +29,7 @@ curl --location 'https://aiv-api-development.shift4payments.com/gpt-rag/api/inte
 }'
 */
 Deno.test("Create Job Test", async () => {
-  const inputs = { externalRef: "123", ticketLink: "https://support.example.com/tickets/12345", mid: "123456789", dba: "Example DBA", callerType: "Technical Support", softwareType: "CRM", escalationType: "Urgent", escalationReason: "System Down", merchantReason: "Unable to process payments", additionalContext: "How to void a payment on Skytab POS"};
+  const inputs = { formEndCompleted: "1", externalRef: "123", ticketLink: "https://support.example.com/tickets/12345", mid: "123456789", dba: "Example DBA", callerType: "Technical Support", softwareType: "CRM", escalationType: "Urgent", escalationReason: "System Down", merchantReason: "Unable to process payments", additionalContext: "How to void a payment on Skytab POS"};
   const { outputs, error } = await SampleFunction(createContext({ inputs }));
 
   assertEquals(error, undefined);

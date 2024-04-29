@@ -37,9 +37,9 @@ const CreateAiTestWorkflow = DefineWorkflow({
 const inputForm = CreateAiTestWorkflow.addStep(
   Schema.slack.functions.OpenForm,
   {
-    title: "Send message to channel",
+    title: "input form",
     interactivity: CreateAiTestWorkflow.inputs.interactivity,
-    submit_label: "Send message",
+    submit_label: "input form",
     fields: {
         elements: [
             {
@@ -150,6 +150,7 @@ externalRef: {
  * https://api.slack.com/automation/functions/custom
  */
 const sampleFunctionStep = CreateAiTestWorkflow.addStep(createAIResponseJobDef, {
+  // formEndCompleted: inputForm.outputs.timestamp_completed,
   externalRef: inputForm.outputs.fields.externalRef,
   ticketLink: inputForm.outputs.fields.ticketLink,
   mid: inputForm.outputs.fields.mid,
