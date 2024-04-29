@@ -3,7 +3,7 @@ import { DefineFunction, Schema, SlackFunction } from "deno-slack-sdk/mod.ts";
 /*
 curl --location 'https://aiv-api-development.shift4payments.com/gpt-rag/api/integration/v1/agents/internal-support-escalation-workflow/jobs' \
 --header 'Content-Type: application/json' \
---header 'Authorization: eeaef769-2c0a-4479-9e45-fd69b57612c4' \
+--header 'Authorization: ' \
 --data '{
   "supportEscalationContext": {
     "externalRef": "--google-sheet-external-ref--",
@@ -22,18 +22,17 @@ curl --location 'https://aiv-api-development.shift4payments.com/gpt-rag/api/inte
 export const createAIResponseJobDef = DefineFunction({
   callback_id: "create_job",
   title: "Create AI Response Job",
-  description: "Create AI Response Job",
+  description: "NEW Create AI Response Job",
   source_file: "functions/create_job_function.ts",
   input_parameters: {
     properties: {
         externalRef: {
             type: Schema.types.string,
-            description: "Spreadsheet Id for Google Sheets Backend for the workflow",
+            description: "Spreadsheet URL for Google Sheets Backend for the workflow",
         },
         ticketLink: {
             type: Schema.types.string,
             description: "Link to the ticket in the support system",
-
         },
         mid: {
             type: Schema.types.string,
@@ -76,6 +75,10 @@ export const createAIResponseJobDef = DefineFunction({
         type: Schema.types.string,
         description: "JobId to poll job later",
       },
+      failure: {
+        type: Schema.types.boolean,
+        description: "Failure flag",
+      },
     },
     required: ["jobId"],
   },
@@ -84,12 +87,11 @@ export const createAIResponseJobDef = DefineFunction({
 export default SlackFunction(
   createAIResponseJobDef,
   async ({ inputs, env }) => { // Make this function async
-    
+
     // get the endpoint and AUTH_TOKEN from the env object
     const {ENDPOINT, AUTH_TOKEN} = env;
     
     // Log the env and inputs to the console ONLY locally
-    console.log(`env: ${JSON.stringify(env)}`);
     console.log(`inputs: ${JSON.stringify(inputs)}`);
     console.log(`body: ${JSON.stringify({
       supportEscalationContext: inputs,
@@ -111,14 +113,16 @@ export default SlackFunction(
       
       // jobId is now available here after the await statements
       const jobId = data.id;
+
+      console.log("Successfully created job with id: ", jobId);
   
       // Return outputs directly within the async function after the value has been resolved
-      return { outputs: { jobId } };
+      return { outputs: { jobId, failure: false} };
     }catch(f){
+      console.log("Error in fetch call");
       console.error(f);
       return {
-        error:
-          `An error was encountered during job creation: \`${f.message}\``,
+        outputs: { jobId: null, failure: true }
       };
   }
 });
