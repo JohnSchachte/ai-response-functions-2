@@ -12,7 +12,7 @@ mf.install();
 /*
 curl --location 'https://aiv-api-development.shift4payments.com/gpt-rag/api/integration/v1/agents/internal-support-escalation-workflow/jobs' \
 --header 'Content-Type: application/json' \
---header 'Authorization: eeaef769-2c0a-4479-9e45-fd69b57612c4' \
+--header 'Authorization:' \
 --data '{
   "supportEscalationContext": {
     "externalRef": "--google-sheet-external-ref--",
