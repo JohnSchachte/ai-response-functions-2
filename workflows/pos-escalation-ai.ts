@@ -1,5 +1,6 @@
 import { DefineWorkflow, Schema } from "deno-slack-sdk/mod.ts";
 import { createAIResponseJobDef } from "../functions/create_job_function.ts";
+import { postAIResponseDef } from "../functions/post_job_function.ts";
 
 /**
  * A workflow is a set of steps that are executed in order.
@@ -98,50 +99,6 @@ const inputForm = CreateAiTestWorkflow.addStep(
   },
 );
 
-/*
-externalRef: {
-        type: Schema.types.string,
-        description: "Spreadsheet Id for Google Sheets Backend for the workflow",
-    },
-    ticketLink: {
-        type: Schema.types.string,
-        description: "Link to the ticket in the support system",
-
-    },
-    mid: {
-        type: Schema.types.string,
-        description: "Merchant ID",
-    },
-    dba: {
-        type: Schema.types.string,
-        description: "Doing Business As",
-    },
-    callerType: {
-        type: Schema.types.string,
-        description: "Caller Type",
-    },
-    softwareType: {
-        type: Schema.types.string,
-        description: "Software Type",
-    },
-    escalationType: {
-        type: Schema.types.string,
-        description: "Escalation Type",
-    },
-    escalationReason: {
-        type: Schema.types.string,
-        description: "Escalation Reason",
-    },
-    merchantReason: {
-        type: Schema.types.string,
-        description: "Merchant Reason",
-    },
-    additionalContext: {
-        type: Schema.types.string,
-        description: "Additional Context",
-    }
-*/
-
 /**
  * Custom functions are reusable building blocks
  * of automation deployed to Slack infrastructure. They
@@ -149,8 +106,7 @@ externalRef: {
  * outputs, just like typical programmatic functions.
  * https://api.slack.com/automation/functions/custom
  */
-const sampleFunctionStep = CreateAiTestWorkflow.addStep(createAIResponseJobDef, {
-  // formEndCompleted: inputForm.outputs.timestamp_completed,
+const createAIResponseJobStep = CreateAiTestWorkflow.addStep(createAIResponseJobDef, {
   externalRef: inputForm.outputs.fields.externalRef,
   ticketLink: inputForm.outputs.fields.ticketLink,
   mid: inputForm.outputs.fields.mid,
@@ -169,9 +125,15 @@ const sampleFunctionStep = CreateAiTestWorkflow.addStep(createAIResponseJobDef, 
  * a message and can be used alongside custom functions in a workflow.
  * https://api.slack.com/automation/functions
  */
-CreateAiTestWorkflow.addStep(Schema.slack.functions.SendMessage, {
+const sendJobIdMessage = CreateAiTestWorkflow.addStep(Schema.slack.functions.SendMessage, {
   channel_id: CreateAiTestWorkflow.inputs.channel,
-  message: sampleFunctionStep.outputs.jobId,
+  message: createAIResponseJobStep.outputs.jobId,
+});
+
+CreateAiTestWorkflow.addStep(postAIResponseDef, {
+  jobId: createAIResponseJobStep.outputs.jobId,
+  isCreatedFailure: createAIResponseJobStep.outputs.failure,
+  messageContext: sendJobIdMessage.outputs.message_context, // Ensure this is the correct output from the previous SendMessage step
 });
 
 export default CreateAiTestWorkflow;
