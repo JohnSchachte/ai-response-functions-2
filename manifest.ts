@@ -1,5 +1,4 @@
 import { Manifest } from "deno-slack-sdk/mod.ts";
-import CreateAiTestWorkflow from "./workflows/pos-escalation-ai.ts";
 
 /**
  * The app manifest contains the app's configuration. This
@@ -9,8 +8,8 @@ import CreateAiTestWorkflow from "./workflows/pos-escalation-ai.ts";
 export default Manifest({
   name: "AI Response Escalations",
   description: "Functions for AI Responses to Escalations",
-  icon: "assets/default_new_app_icon.png",
-  workflows: [CreateAiTestWorkflow],
+  icon: "assets/Shift4 Icon - RBG.png",
+  workflows: [],
   outgoingDomains: ["aiv-api-development.shift4payments.com"],
   datastores: [],
   botScopes: [
