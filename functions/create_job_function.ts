@@ -80,7 +80,7 @@ export const createAIResponseJobDef = DefineFunction({
         description: "Failure flag",
       },
     },
-    required: ["jobId"],
+    required: ["jobId","failure"],
   },
 });
 
@@ -109,8 +109,18 @@ export default SlackFunction(
               supportEscalationContext: inputs,
           }),
       });
-      const data = await response.json(); // Wait for the JSON response
-      
+
+      if (!response.ok) {
+          console.error('HTTP error', response.status, await response.text());
+          return {
+              outputs: { jobId: null, failure: true }
+          };
+      }
+
+      const data = await response.json(); // Wait for the JSON response to be resolved
+
+
+
       // jobId is now available here after the await statements
       const jobId = data.id;
 
@@ -122,7 +132,7 @@ export default SlackFunction(
       console.log("Error in fetch call");
       console.error(f);
       return {
-        outputs: { jobId: null, failure: true }
+        outputs: { jobId: '', failure: true }
       };
   }
 });
