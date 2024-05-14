@@ -39,6 +39,14 @@ export const postAIResponseDef = DefineFunction({
             messageContext: {
                 type: Schema.slack.types.message_context,
                 description: "Thread of message that was posted to",
+            },
+            answerId: {
+              type: Schema.types.string,
+              description: "Id of the answer produced by the AI response job",
+            },
+            aiAnswer : {
+              type: Schema.types.string,
+              description: "AI Answer",
             }
         },
         required: ["jobId","isSuccess","messageContext"],
@@ -62,7 +70,7 @@ export default SlackFunction(
     if(isCreatedFailure){
       console.log("Job was not created successfully. Exiting");
       return {
-        outputs: { jobId, isSuccess: false, messageContext}
+        outputs: { jobId, isSuccess: false, messageContext }
       };
     }
 
@@ -80,7 +88,7 @@ export default SlackFunction(
       if (!response.ok) {
           console.error('HTTP error', response.status, await response.text());
           return {
-              outputs: { jobId: null, isSuccess: false, messageContext }
+              outputs: { jobId, isSuccess: false, messageContext }
           };
       }
 
@@ -107,18 +115,18 @@ export default SlackFunction(
         console.log("status: ",status);
         console.log("answer: ",answer);
         return {
-          outputs: { jobId, isSuccess: false, messageContext}
+          outputs: { jobId, isSuccess: false, messageContext, aiAnswer: status }
         };
       }
 
-      const {hasResolution, content} = answer;
+      const {hasResolution, content} = answer, answerId = answer.id;
       console.log("answer since not failed: ",answer);
 
       if(!hasResolution){
         console.log("Answer not found. Exiting");
         return { 
           outputs: {
-            jobId, isSuccess: false, messageContext
+            jobId, isSuccess: false, messageContext, answerId: answer.id, aiAnswer: "No Resolution"
           } 
         };
       }
@@ -168,6 +176,13 @@ export default SlackFunction(
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
+                  "text": "*Original Context from Submitter:*\n"+additionalContext // the additional context fed into the AI from user response form
+                }
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
                   "text": `*${cautionText}*: \n${content}` 
                 }
               }
@@ -175,25 +190,29 @@ export default SlackFunction(
             mrkdwn: true // This ensures Markdown is processed in the message text.
           });
 
+          
           console.log("Message posted into thread not in dev mode. Response: ",msgResponse);
-        
         }
         
         // Return outputs directly within the async function after the value has been resolved
-        return { outputs: { jobId, isSuccess: true, messageContext} };
-
+        console.log("Returning outputs", JSON.stringify({ outputs: { jobId, isSuccess: true, messageContext, answerId: answerId, aiAnswer: content } }))
+  
+        return { outputs: { jobId, isSuccess: true, messageContext, answerId: answerId, aiAnswer: content } };
+        
       }catch(f){
         console.log("Error in posting message to thread");
         console.error(f);
         return {
-          outputs: { jobId, isSuccess: false, messageContext}
+          outputs: { jobId, isSuccess: false, messageContext, aiAnswer: content}
         };
       }
+
+    
     }catch(f){
       console.log("Error in fetch call");
       console.error(f);
       return {
-        outputs: { jobId, isSuccess: false, messageContext}
+        outputs: { jobId, isSuccess: false, messageContext, aiAnswer: "Error in fetching answer" }
       };
   }
 });
