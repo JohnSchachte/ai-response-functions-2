@@ -1,6 +1,8 @@
 import { DefineWorkflow, Schema } from "deno-slack-sdk/mod.ts";
 import { createAIResponseJobDef } from "../functions/create_job_function.ts";
 import { postAIResponseDef } from "../functions/post_job_function.ts";
+import { postUserRating } from "../functions/post_rating_function.ts";
+import { deleteUserRating } from "../functions/delete_rating_function.ts";
 
 /**
  * A workflow is a set of steps that are executed in order.
@@ -131,9 +133,20 @@ const sendJobIdMessage = CreateAiTestWorkflow.addStep(Schema.slack.functions.Sen
 });
 
 CreateAiTestWorkflow.addStep(postAIResponseDef, {
-  jobId: createAIResponseJobStep.outputs.jobId,
-  isCreatedFailure: createAIResponseJobStep.outputs.failure,
+  jobId: "123",
+  isCreatedFailure: true,
   messageContext: sendJobIdMessage.outputs.message_context, // Ensure this is the correct output from the previous SendMessage step
+});
+
+CreateAiTestWorkflow.addStep(postUserRating, {
+  feedback: "good",
+  comment: "Great AI Response",
+  isPostSuccess: true,
+  answerId: "123"
+});
+
+CreateAiTestWorkflow.addStep(deleteUserRating, {
+  answerId: "123"
 });
 
 export default CreateAiTestWorkflow;
