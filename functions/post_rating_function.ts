@@ -33,8 +33,10 @@ export default SlackFunction(
   postUserRating,
   async ({ inputs, env }) => { // Make this function async
 
-    // get the endpoint and AUTH_TOKEN from the env object
-    const {ANSWER_ENDPOINT, AUTH_TOKEN} = env;
+    const {AUTH_TOKEN,IS_PROD} = env;
+
+    let ENDPOINT;
+    IS_PROD == "true" ? ENDPOINT = env.PROD_ENDPOINT : ENDPOINT = env.ENDPOINT;
     
     // Log the env and inputs to the console ONLY locally
     console.log(`inputs: ${JSON.stringify(inputs)}`);
@@ -65,7 +67,7 @@ export default SlackFunction(
       curl --location '{{base}}/answers/:answerId/owner-vote' \ --header 'Content-Type: application/json' \ --header 'Authorization: {{token}}' \ --data '{ "emoji": "thumbup||thumbdown", "comment": "My comment text or null" }'
       */
       // Use async/await syntax for the fetch call
-      const response = await fetch(`${ANSWER_ENDPOINT}/${answerId}/owner-vote`, {
+      const response = await fetch(`${ENDPOINT}/${answerId}/owner-vote`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',

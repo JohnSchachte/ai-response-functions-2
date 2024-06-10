@@ -63,7 +63,11 @@ export default SlackFunction(
     console.log("Inputs: ", inputs);
     
     // get the endpoint and AUTH_TOKEN from the env object
-    const {ENDPOINT, AUTH_TOKEN} = env;
+    const {AUTH_TOKEN,IS_PROD} = env;
+
+    let ENDPOINT;
+    IS_PROD == "true" ? ENDPOINT = env.PROD_ENDPOINT : ENDPOINT = env.ENDPOINT;
+    
     const {jobId, messageContext,isCreatedFailure,additionalContext} = inputs; // let for testing purposes
 
     // Check if Job was created earlier in the workflow or if there was an error

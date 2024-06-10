@@ -88,8 +88,10 @@ export default SlackFunction(
   createAIResponseJobDef,
   async ({ inputs, env }) => { // Make this function async
 
-    // get the endpoint and AUTH_TOKEN from the env object
-    const {ENDPOINT, AUTH_TOKEN} = env;
+    const {AUTH_TOKEN,IS_PROD} = env;
+
+    let ENDPOINT;
+    IS_PROD == "true" ? ENDPOINT = env.PROD_ENDPOINT : ENDPOINT = env.ENDPOINT;
     
     // Log the env and inputs to the console ONLY locally
     console.log(`inputs: ${JSON.stringify(inputs)}`);
