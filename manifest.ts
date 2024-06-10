@@ -11,7 +11,7 @@ export default Manifest({
   description: "Functions for AI Responses to Escalations",
   icon: "assets/AI.png",
   workflows: [CreateAiTestWorkflow],
-  outgoingDomains: ["aiv-api-development.shift4payments.com"],
+  outgoingDomains: ["aiv-api-development.shift4payments.com","aiv-api.shift4payments.com"],
   datastores: [],
   botScopes: [
     "commands",
