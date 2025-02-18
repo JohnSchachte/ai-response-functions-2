@@ -50,7 +50,7 @@ export default SlackFunction(
 
     let emoji;
     if(inputs.feedback == "Good") emoji = "thumbup";
-    else if(inputs.feedback == "Bad") emoji = "thumbdown";
+    //else if(inputs.feedback == "Bad") emoji = "thumbdown";
     else emoji = inputs.feedback;
     
     const comment = inputs.comment, answerId = inputs.answerId;
