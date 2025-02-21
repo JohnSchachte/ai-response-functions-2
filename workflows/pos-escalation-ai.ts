@@ -142,7 +142,10 @@ CreateAiTestWorkflow.addStep(postUserRating, {
   feedback: "good",
   comment: "Great AI Response",
   isPostSuccess: true,
-  answerId: "123"
+  answerId: "123",
+  aiAnswer: "Good AI response",
+  additionalContext: "Original context",
+  submissionThread: sendJobIdMessage.outputs.message_context,
 });
 
 CreateAiTestWorkflow.addStep(deleteUserRating, {

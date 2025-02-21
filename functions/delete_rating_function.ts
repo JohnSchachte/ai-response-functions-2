@@ -26,10 +26,10 @@ export default SlackFunction(
     const {AUTH_TOKEN,IS_PROD} = env;
 
     let ENDPOINT;
-    IS_PROD == "true" ? ENDPOINT = env.PROD_ENDPOINT : ENDPOINT = env.ENDPOINT;
+    IS_PROD == "true" ? ENDPOINT = env.PROD_ANSWER_ENDPOINT : ENDPOINT = env.ANSWER_ENDPOINT;
     
     
-    // Log the env and inputs to the console ONLY locally
+    // Log the inputs to the console
     console.log(`inputs: ${JSON.stringify(inputs)}`);
 
     // check if upstream steps were successful
