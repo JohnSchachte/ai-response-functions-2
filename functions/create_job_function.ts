@@ -86,7 +86,7 @@ export const createAIResponseJobDef = DefineFunction({
 
 export default SlackFunction(
   createAIResponseJobDef,
-  async ({ inputs, env }) => { // Make this function async
+  async ({ inputs, env }) => {
 
     const {AUTH_TOKEN,IS_PROD} = env;
 
