@@ -92,6 +92,10 @@ export default SlackFunction(
 
     let ENDPOINT;
     IS_PROD == "true" ? ENDPOINT = env.PROD_ENDPOINT : ENDPOINT = env.ENDPOINT;
+
+    // transform CS's workflow caller type from "Yes" and "No" to POS Agent Assist workflow caller types
+    inputs.callerType = inputs.callerType == "Yes" ? "Owner" : inputs.callerType;
+    inputs.callerType = inputs.callerType == "No" ? "Unauthorized User" : inputs.callerType;
     
     // Log the env and inputs to the console ONLY locally
     console.log(`inputs: ${JSON.stringify(inputs)}`);
