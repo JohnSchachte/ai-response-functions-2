@@ -26,6 +26,18 @@ export const createAIResponseJobDef = DefineFunction({
   source_file: "functions/create_job_function.ts",
   input_parameters: {
     properties: {
+        submitterSlackId: {
+          type: Schema.types.string,
+          description: "Submitter's Slack Id"
+        },
+        submitterSlackName: {
+          type: Schema.types.string,
+          description: "Submitter's Slack Display Name"
+        },
+        submitterSlackEmail: {
+          type: Schema.types.string,
+          description: "Submitter's Slack Email"
+        },
         externalRef: {
             type: Schema.types.string,
             description: "Spreadsheet URL for Google Sheets Backend for the workflow",
@@ -67,7 +79,7 @@ export const createAIResponseJobDef = DefineFunction({
             description: "Additional Context",
         }
     },
-    required: ["externalRef", "ticketLink", "mid", "dba", "callerType", "softwareType", "escalationType", "escalationReason", "merchantReason", "additionalContext"],
+    required: ["submitterSlackId","submitterSlackName","submitterSlackEmail","externalRef", "ticketLink", "mid", "dba", "callerType", "softwareType", "escalationType", "escalationReason", "merchantReason", "additionalContext"],
   },
   output_parameters: {
     properties: {
@@ -78,15 +90,20 @@ export const createAIResponseJobDef = DefineFunction({
       failure: {
         type: Schema.types.boolean,
         description: "Failure flag",
-      },
+      },      
+      aivUserId: {
+        type: Schema.types.string,
+        description: "User Id that AI team wants me to keep putting in the header.",
+      }
     },
-    required: ["jobId","failure"],
+    required: ["jobId","failure","aivUserId"],
   },
 });
 
 export default SlackFunction(
   createAIResponseJobDef,
   async ({ inputs, env }) => {
+    console.log('started create job. see if this logs..')
 
     const {AUTH_TOKEN,IS_PROD} = env;
 
@@ -103,13 +120,52 @@ export default SlackFunction(
       supportEscalationContext: inputs,
     })}`);
 
+    let aivUserId;
+    try {
+      // 1. Make the fetch call
+      const postUserResponse = await fetch(`${ENDPOINT}users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': AUTH_TOKEN,
+        },
+        body: JSON.stringify({
+          externalId: inputs.submitterSlackId,
+          name: inputs.submitterSlackName,
+          email: inputs.submitterSlackEmail,
+        }),
+      });
+      
+      // 2. Check for a non-2xx response
+      if (!postUserResponse.ok) {
+        console.error('HTTP error', postUserResponse.status, await postUserResponse.text());
+        return {
+          outputs: { jobId: '', failure: true, aivUserId:'' }
+        };
+      }
+
+      // 3. Parse out the user ID
+      const userData = await postUserResponse.json();
+      // The key here depends on the API response structure:
+      // e.g., userData.id or userData.userId or something else
+      aivUserId = userData.id; 
+    } catch (f) {
+      console.log("Error in fetch call for posting user");
+      console.error(f);
+      return {
+        outputs: { jobId: '', failure: true,aivUserId:'' }
+      };
+    }
+
+
     try{
       // Use async/await syntax for the fetch call
-      const response = await fetch(`${ENDPOINT}`, {
+      const response = await fetch(`${ENDPOINT}jobs`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
               'Authorization': AUTH_TOKEN,
+              'X-User-Id': aivUserId
           },
           body: JSON.stringify({
               supportEscalationContext: inputs,
@@ -119,7 +175,7 @@ export default SlackFunction(
       if (!response.ok) {
           console.error('HTTP error', response.status, await response.text());
           return {
-              outputs: { jobId: null, failure: true }
+              outputs: { jobId: '', failure: true, aivUserId: '' }
           };
       }
 
@@ -133,12 +189,12 @@ export default SlackFunction(
       console.log("Successfully created job with id: ", jobId);
   
       // Return outputs directly within the async function after the value has been resolved
-      return { outputs: { jobId, failure: false} };
+      return { outputs: { jobId, failure: false, aivUserId} };
     }catch(f){
       console.log("Error in fetch call");
       console.error(f);
       return {
-        outputs: { jobId: '', failure: true }
+        outputs: { jobId: '', failure: true, aivUserId:'' }
       };
   }
 });
