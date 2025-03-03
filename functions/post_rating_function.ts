@@ -8,10 +8,6 @@ export const postUserRating = DefineFunction({
   source_file: "functions/post_rating_function.ts",
   input_parameters: {
     properties: {
-        aivUserId: {
-          type: Schema.types.string,
-          description: "User Id that AI team wants me to keep putting in the header.",
-        },
         feedback: {
             type: Schema.types.string,
             description: "binary response to the AI response (thumbs up or thumbs down) or 'No AI Response'.",
@@ -42,7 +38,7 @@ export const postUserRating = DefineFunction({
         },
 
     },
-    required: ["aivUserId","feedback","isPostSuccess","submissionThread"],
+    required: ["feedback","isPostSuccess","submissionThread"],
   }
 });
 
@@ -53,7 +49,7 @@ export default SlackFunction(
     const {AUTH_TOKEN,IS_PROD} = env;
 
     let ENDPOINT;
-    IS_PROD == "true" ? ENDPOINT = env.PROD_ENDPOINT : ENDPOINT = env.ENDPOINT;
+    IS_PROD == "true" ? ENDPOINT = env.PROD_ANSWER_ENDPOINT : ENDPOINT = env.ANSWER_ENDPOINT;
     
     // Log the env and inputs to the console ONLY locally
     console.log(`inputs: ${JSON.stringify(inputs)}`);
@@ -109,6 +105,15 @@ export default SlackFunction(
       console.error(f);
     }
 
+
+
+
+
+
+
+
+
+
     
     const comment = inputs.comment, answerId = inputs.answerId;
 
@@ -124,12 +129,11 @@ export default SlackFunction(
       curl --location '{{base}}/answers/:answerId/owner-vote' \ --header 'Content-Type: application/json' \ --header 'Authorization: {{token}}' \ --data '{ "emoji": "thumbup||thumbdown", "comment": "My comment text or null" }'
       */
       // Use async/await syntax for the fetch call
-      const response = await fetch(`${ENDPOINT}answers/${answerId}/owner-vote`, {
+      const response = await fetch(`${ENDPOINT}/${answerId}/owner-vote`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
               'Authorization': AUTH_TOKEN,
-              'X-User-Id': inputs.aivUserId
           },
           body: postData
       });
