@@ -58,7 +58,7 @@ const inputForm = CreateAiTestWorkflow.addStep(
             {
                 name: "mid",
                 title: "mid",
-                type: Schema.types.number
+                type: Schema.types.string
             },
             {
                 name: "dba",
@@ -109,6 +109,9 @@ const inputForm = CreateAiTestWorkflow.addStep(
  * https://api.slack.com/automation/functions/custom
  */
 const createAIResponseJobStep = CreateAiTestWorkflow.addStep(createAIResponseJobDef, {
+  // submitterSlackId: "xxx",
+  // submitterSlackName: "Schachte, John",
+  // submitterSlackEmail: "jschachte@shift4.com",
   externalRef: inputForm.outputs.fields.externalRef,
   ticketLink: inputForm.outputs.fields.ticketLink,
   mid: inputForm.outputs.fields.mid,
@@ -133,12 +136,14 @@ const sendJobIdMessage = CreateAiTestWorkflow.addStep(Schema.slack.functions.Sen
 });
 
 CreateAiTestWorkflow.addStep(postAIResponseDef, {
+  aivUserId: "123",
   jobId: "123",
   isCreatedFailure: true,
   messageContext: sendJobIdMessage.outputs.message_context, // Ensure this is the correct output from the previous SendMessage step
 });
 
 CreateAiTestWorkflow.addStep(postUserRating, {
+  aivUserId: "123",
   feedback: "good",
   comment: "Great AI Response",
   isPostSuccess: true,
