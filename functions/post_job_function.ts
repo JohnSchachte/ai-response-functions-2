@@ -7,6 +7,10 @@ export const postAIResponseDef = DefineFunction({
   source_file: "functions/post_job_function.ts",
   input_parameters: {
         properties: {
+            aivUserId: {
+              type: Schema.types.string,
+              description: "User Id that AI team wants me to keep putting in the header.",
+            },
             jobId: {
                 type: Schema.types.string,
                 description: "Id to request from backend",
@@ -24,7 +28,7 @@ export const postAIResponseDef = DefineFunction({
               description: "Additional Context",
             }
         },
-        required: ["jobId","messageContext","isCreatedFailure"],
+        required: ["aivUserId","jobId","messageContext","isCreatedFailure"],
     },
     output_parameters: {
         properties: {
@@ -82,10 +86,11 @@ export default SlackFunction(
 
     try{
       // Use async/await syntax for the fetch call
-      const response = await fetch(`${ENDPOINT}/${jobId}?answerFormat=slack`, {
+      const response = await fetch(`${ENDPOINT}jobs/${jobId}?answerFormat=slack`, {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': AUTH_TOKEN,
+            'X-User-Id' : inputs.aivUserId
         }
       });
 
