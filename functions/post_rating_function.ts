@@ -40,9 +40,13 @@ export const postUserRating = DefineFunction({
           type: Schema.slack.types.message_context,
           description: "Message Thread ID in the submission channel",
         },
+        endpointIndicator: {
+          type: Schema.types.string,
+          description: "A string indicator to use with environment object to get the correct endpoint"
+        }
 
     },
-    required: ["aivUserId","feedback","isPostSuccess","submissionThread"],
+    required: ["aivUserId","feedback","isPostSuccess","submissionThread","endpointIndicator"],
   }
 });
 
@@ -50,10 +54,9 @@ export default SlackFunction(
   postUserRating,
   async ({ inputs, env, client}) => {
 
-    const {AUTH_TOKEN,IS_PROD} = env;
+    const {AUTH_TOKEN} = env;
 
-    let ENDPOINT;
-    IS_PROD == "true" ? ENDPOINT = env.PROD_ENDPOINT : ENDPOINT = env.ENDPOINT;
+    const ENDPOINT = env[inputs.endpointIndicator];
     
     // Log the env and inputs to the console ONLY locally
     console.log(`inputs: ${JSON.stringify(inputs)}`);

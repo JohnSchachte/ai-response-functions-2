@@ -3,6 +3,7 @@ import { createAIResponseJobDef } from "../functions/create_job_function.ts";
 import { postAIResponseDef } from "../functions/post_job_function.ts";
 import { postUserRating } from "../functions/post_rating_function.ts";
 import { deleteUserRating } from "../functions/delete_rating_function.ts";
+import { createAIResponseJobCSDef } from "../functions/create_job_CS_function.ts"
 
 /**
  * A workflow is a set of steps that are executed in order.
@@ -108,6 +109,27 @@ const inputForm = CreateAiTestWorkflow.addStep(
  * outputs, just like typical programmatic functions.
  * https://api.slack.com/automation/functions/custom
  */
+//["linkToResource", "ticketLink", "mid", "dba", "isOwnerVerified", "additionalNotes"],
+CreateAiTestWorkflow.addStep(createAIResponseJobCSDef, {
+  // submitterSlackId: "xxx",
+  // submitterSlackName: "Schachte, John",
+  // submitterSlackEmail: "jschachte@shift4.com",
+  linkToResource: inputForm.outputs.fields.externalRef,
+  ticketLink: inputForm.outputs.fields.ticketLink,
+  mid: inputForm.outputs.fields.mid,
+  dba: inputForm.outputs.fields.dba,
+  isOwnerVerified: inputForm.outputs.fields.callerType,
+  scenario: inputForm.outputs.fields.escalationType,
+  additionalNotes: inputForm.outputs.fields.additionalContext,
+});
+
+/**
+ * Custom functions are reusable building blocks
+ * of automation deployed to Slack infrastructure. They
+ * accept inputs, perform calculations, and provide
+ * outputs, just like typical programmatic functions.
+ * https://api.slack.com/automation/functions/custom
+ */
 const createAIResponseJobStep = CreateAiTestWorkflow.addStep(createAIResponseJobDef, {
   // submitterSlackId: "xxx",
   // submitterSlackName: "Schachte, John",
@@ -140,6 +162,7 @@ CreateAiTestWorkflow.addStep(postAIResponseDef, {
   jobId: "123",
   isCreatedFailure: true,
   messageContext: sendJobIdMessage.outputs.message_context, // Ensure this is the correct output from the previous SendMessage step
+  endpointIndicator: "ENDPOINT"
 });
 
 CreateAiTestWorkflow.addStep(postUserRating, {
@@ -151,6 +174,7 @@ CreateAiTestWorkflow.addStep(postUserRating, {
   aiAnswer: "Good AI response",
   additionalContext: "Original context",
   submissionThread: sendJobIdMessage.outputs.message_context,
+  endpointIndicator: "ENDPOINT"
 });
 
 CreateAiTestWorkflow.addStep(deleteUserRating, {

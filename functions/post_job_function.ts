@@ -26,9 +26,13 @@ export const postAIResponseDef = DefineFunction({
             additionalContext: {
               type: Schema.types.string,
               description: "Additional Context",
+            },
+            endpointIndicator: {
+              type: Schema.types.string,
+              description: "A string indicator to use with environment object to get the correct endpoint"
             }
         },
-        required: ["aivUserId","jobId","messageContext","isCreatedFailure"],
+        required: ["aivUserId","jobId","messageContext","isCreatedFailure","endpointIndicator"],
     },
     output_parameters: {
         properties: {
@@ -69,8 +73,10 @@ export default SlackFunction(
     // get the endpoint and AUTH_TOKEN from the env object
     const { AUTH_TOKEN, IS_PROD } = env;
 
+    const ENDPOINT = env[inputs.endpointIndicator];
+
     
-    const ENDPOINT = IS_PROD === "true" ? env.PROD_ENDPOINT : env.ENDPOINT;
+    // const ENDPOINT = IS_PROD === "true" ? env.PROD_ENDPOINT : env.ENDPOINT;
     const waitTime = IS_PROD === "true" ? 20000 : 5000
 
     const { jobId, messageContext, isCreatedFailure, additionalContext } = inputs;
