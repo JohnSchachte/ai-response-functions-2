@@ -30,9 +30,13 @@ export const postAIResponseDef = DefineFunction({
             endpointIndicator: {
               type: Schema.types.string,
               description: "A string indicator to use with environment object to get the correct endpoint"
+            },
+            stringIsCreatedFailure: {
+              type: Schema.types.string,
+              description: "Used when isCreatedFailure is null"
             }
         },
-        required: ["aivUserId","jobId","messageContext","isCreatedFailure","endpointIndicator"],
+        required: ["aivUserId","jobId","messageContext","endpointIndicator"],
     },
     output_parameters: {
         properties: {
@@ -82,7 +86,7 @@ export default SlackFunction(
     const { jobId, messageContext, isCreatedFailure, additionalContext } = inputs;
 
     // Check if Job was created earlier in the workflow or if there was an error
-    if (isCreatedFailure) {
+    if (isCreatedFailure || inputs.stringIsCreatedFailure == "true") {
       console.log("Job was not created successfully. Exiting");
       return {
         outputs: { jobId, isSuccess: false, messageContext }

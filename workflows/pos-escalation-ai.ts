@@ -1,9 +1,10 @@
-import { DefineWorkflow, Schema } from "deno-slack-sdk/mod.ts";
+import { DefineWorkflow, Schema, SlackAPI } from "deno-slack-sdk/mod.ts";
 import { createAIResponseJobDef } from "../functions/create_job_function.ts";
 import { postAIResponseDef } from "../functions/post_job_function.ts";
 import { postUserRating } from "../functions/post_rating_function.ts";
 import { deleteUserRating } from "../functions/delete_rating_function.ts";
-import { createAIResponseJobCSDef } from "../functions/create_job_CS_function.ts"
+import { createAIResponseJobCSDef } from "../functions/create_job_CS_function.ts";
+import { postUserRatingToUser } from "../functions/post_rating_to_user_function.ts";
 
 /**
  * A workflow is a set of steps that are executed in order.
@@ -144,6 +145,18 @@ const createAIResponseJobStep = CreateAiTestWorkflow.addStep(createAIResponseJob
   escalationReason: inputForm.outputs.fields.escalationReason,
   merchantReason: inputForm.outputs.fields.merchantReason,
   additionalContext: inputForm.outputs.fields.additionalContext,
+});
+
+CreateAiTestWorkflow.addStep(postUserRatingToUser, {
+  aivUserId: "123",
+  feedback: "good",
+  comment: "Great AI Response",
+  isPostSuccess: true,
+  answerId: "123",
+  aiAnswer: "Good AI response",
+  additionalContext: "Original context",
+  submitterId: Schema.slack.types.user_id,
+  endpointIndicator: "ENDPOINT"
 });
 
 /**
